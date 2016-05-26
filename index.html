@@ -1,0 +1,98 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+</head>
+<body ng-app="myApp">
+  <!-- index.html -->
+
+  <div ui-view>
+    NOTHING-NONE
+  </div>
+  <!-- We'll also add some navigation: -->
+
+  <ol>
+    <li>
+      <a ui-sref="birth">Birth</a>
+    </li>
+    <li>
+      <a ui-sref=".childhood">Childhood</a>
+    </li>
+    <li>
+      <a ui-sref="birth.childhood.study">Study</a>
+    </li>
+    <li>
+      <a ui-sref="birth.childhood.career">Career</a>
+    </li>
+    <li>
+      <a ui-sref="birth.childhood.study.phd">PHD</a>
+    </li>
+    <li>
+      <a ui-sref="birth.childhood.career.wl">Working Life</a>
+    </li>
+    <li>
+      <a ui-sref=".cancer">Cancer</a>
+    </li>
+     <li>
+      <a ui-sref=".death">To hell</a>
+    </li>
+  </ol>
+
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.0/angular-ui-router.js"></script>
+
+  <script type="text/javascript">
+    angular.module('myApp', ['ui.router']);
+
+    angular.module('myApp').config(function($stateProvider, $urlRouterProvider) {
+      //
+      // For any unmatched url, redirect to /state1
+      $urlRouterProvider.otherwise("/birth");
+         $stateProvider
+      .state('birth', {
+        url: '/birth',
+        template: '<div>You are borned<br><button ui-sref="birth.childhood">childhood</button><div ui-view></div></div>',
+      })
+      .state('birth.childhood', {
+        url: '/childhood',
+        template: '<div>You are grown up<br><button ui-sref="birth.childhood.study">study</button><br><button ui-sref="birth.childhood.career">career</button><div ui-view></div></div>'
+      })
+      .state('birth.childhood.study', {
+        url: '/study',
+        template: '<div>Really ?<br><button ui-sref=".phd">phd</button> <button ui-sref=".workinglife">workinglife</button><div ui-view></div></div>'
+      })
+      .state('birth.childhood.study.phd', {
+        url: '/phd',
+        template: '<div>Great, What next ?<br><button ui-sref=".workinglife">workinglife</button><div ui-view></div></div>'
+      })
+      .state('birth.childhood.career', {
+        url: '/career',
+        template: '<div>GoodLuck !<br><button ui-sref=".workinglife">workinglife</button><div ui-view></div></div>'
+      });
+
+
+    addWorkingLife($stateProvider, 'birth.childhood.study');
+    addWorkingLife($stateProvider, 'birth.childhood.study.phd');
+    addWorkingLife($stateProvider, 'birth.childhood.career');
+
+    function addWorkingLife($stateProvider, parent){
+      $stateProvider.state(`${parent}.workinglife`, {
+        url: '/worklife',
+        template: '<div>Good old days<br><button ui-sref=".pension">pension</button><div ui-view></div></div>'
+      })
+      .state(`${parent}.workinglife.pension`, {
+        url: '/pension',
+        template: '<div>Good old days<br><button ui-sref=".death">death</button><div ui-view></div></div>'
+      })
+      .state(`${parent}.workinglife.pension.death`, {
+        url: '/death',
+        template: '<div>RIP<br><button ui-sref="birth">birth</button></div>'
+      });
+    }
+  });
+
+  </script>
+  </body>
+
+</html>
