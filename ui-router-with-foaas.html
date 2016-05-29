@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>UI Router with FOAAS</title>
+		<meta charset="utf-8">
+		<!-- Latest compiled and minified CSS -->
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	</head>
+	<body ng-app="myApp">
+		<div style="min-height: 200px" class="container">
+			<h1>Hello UI-Router !</h1>
+
+			<br/>
+
+			<blockquote>
+				<p>
+					The script of this page uses UI-Router with Angular.js (using a graph/tree of states modeled by the cycle of life). The goal is to add some Restangular toresolve http requests between each state using promises.
+				</p>
+			</blockquote>
+		</div>
+
+		<div class="row">
+			<div class="col-md-3 col-md-offset-3" ui-view>
+				If you see this text, there's a problem in the script... :(
+			</div>
+
+			<div class="col-md-3 col-md-offset-6">
+				<blockquote>
+					<p>Message from FOASS (retrieved with Restangular):</p>
+
+					<p id="restQuote"></p>
+				</blockquote>
+			</div>
+		</div>
+
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.3.0/angular-ui-router.js"></script>
+		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/restangular/1.3.1/restangular.min.js"></script>
+		<script type="text/javascript" src="https://raw.githubusercontent.com/lodash/lodash/4.13.1/dist/lodash.js"></script>
+		<script type="text/javascript" src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+		
+		<script type="text/javascript">
+			/*
+			 * In lodash 4.0+, _contains is replaced by the alias _contains,
+			 * so it is necessary to do this you want to use GET methods from RestAngular.
+			 * See https://github.com/mgonto/restangular/issues/1225
+			 */
+			_.contains = _.includes;
+
+			angular.module('myApp', ['ui.router', 'restangular']);
+
+			angular.module('myApp').config(function($stateProvider, $urlRouterProvider, RestangularProvider) {
+
+				RestangularProvider.setBaseUrl('https://www.foaas.com/');
+
+				RestangularProvider.setResponseExtractor(function(response, operation) {
+					return response.message + " " + response.subtitle;
+				});
+
+				RestangularProvider.setDefaultHeaders({
+					'Content-Type'      : 'application/json',
+				});
+
+				// For any unmatched url, redirect to /birth
+				$urlRouterProvider.otherwise("/birth");
+				
+				$stateProvider.state('birth', {
+					url: '/birth',
+					resolve: {
+						message : function(Restangular) {
+							try {
+								var message = Restangular.one("bday/baby/Thibault").get().then(function(message) {
+									$("#restQuote").empty().append(message);
+								});  	
+							} 
+							catch(e) {
+								console.log(e);
+							}
+						}
+					},
+					template: '<div id="birth"><p>You are borned<br><button class="btn btn-success" ui-sref="birth.childhood">childhood</button></p><div ui-view></div></div>',
+				})
+				.state('birth.childhood', {
+					url: '/childhood',
+					template: '<div><p>You are grown up<br> <div class="btn-group"> <button class="btn btn-info" ui-sref="birth.childhood.study">study</button> <button class="btn btn-warning" ui-sref="birth.childhood.career">career</button></p> </div> <div ui-view></div></div>'
+				})
+				.state('birth.childhood.study', {
+					url: '/study',
+					template: '<div><p>Really ?<br> <div class="btn-group"> <button class="btn btn-primary" ui-sref=".phd">phd</button> <button class="btn btn-success" ui-sref=".workinglife">workinglife</button> </div> </p> <div ui-view></div></div>'
+				})
+				.state('birth.childhood.study.phd', {
+					url: '/phd',
+					template: '<div><p>Great, What next ?<br><button class="btn btn-success" ui-sref=".workinglife">workinglife</button> </p> <div ui-view></div></div>'
+				})
+				.state('birth.childhood.career', {
+					url: '/career',
+					template: '<div><p>GoodLuck !<br><button class="btn btn-success" ui-sref=".workinglife">workinglife</button> </p> <div ui-view></div></div>'
+				});
+
+
+				addWorkingLife($stateProvider, 'birth.childhood.study');
+				addWorkingLife($stateProvider, 'birth.childhood.study.phd');
+				addWorkingLife($stateProvider, 'birth.childhood.career');
+
+				function addWorkingLife($stateProvider, parent){
+					$stateProvider.state(`${parent}.workinglife`, {
+						url: '/worklife',
+						template: '<div><p>Good old days<br><button class="btn btn-warning" ui-sref=".pension">pension</button> </p> <div ui-view></div></div>'
+					})
+					.state(`${parent}.workinglife.pension`, {
+						url: '/pension',
+						template: '<div><p>Good old days<br><button class="btn btn-danger" ui-sref=".death">death</button> </p> <div ui-view></div></div>'
+					})
+					.state(`${parent}.workinglife.pension.death`, {
+						url: '/death',
+						template: '<div><p>RIP<br><button class="btn btn-default" ui-sref="birth">birth</button> </p> </div>'
+					});
+				}
+			});	
+		</script>
+	</body>
+</html>
