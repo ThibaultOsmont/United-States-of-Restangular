@@ -51,12 +51,16 @@
 
 			angular.module('myApp').config(function($stateProvider, $urlRouterProvider, RestangularProvider) {
 
+				//To retrieve data from foaas.com
 				RestangularProvider.setBaseUrl('https://www.foaas.com/');
 
+				//This method is automatically called when foaas.com sends a response and format it.
+				//It enables to use the response out-of-the-box
 				RestangularProvider.setResponseExtractor(function(response, operation) {
 					return response.message + " " + response.subtitle;
 				});
 
+				//To indicate to foaas.com to send JSON data.
 				RestangularProvider.setDefaultHeaders({
 					'Content-Type'      : 'application/json',
 				});
@@ -78,23 +82,71 @@
 							}
 						}
 					},
-					template: '<div id="birth"><p>You are borned<br><button class="btn btn-success" ui-sref="birth.childhood">childhood</button></p><div ui-view></div></div>',
+					template: '<div><p>You are borned<br><button class="btn btn-success" ui-sref="birth.childhood">Childhood</button></p><div ui-view></div></div>',
 				})
 				.state('birth.childhood', {
 					url: '/childhood',
-					template: '<div><p>You are grown up<br> <div class="btn-group"> <button class="btn btn-info" ui-sref="birth.childhood.study">study</button> <button class="btn btn-warning" ui-sref="birth.childhood.career">career</button></p> </div> <div ui-view></div></div>'
+					resolve: {
+						message : function(Restangular) {
+							try {
+								var message = Restangular.one("cool/Thibault").get().then(function(message) {
+									$("#restQuote").empty().append(message);
+								});  	
+							} 
+							catch(e) {
+								console.log(e);
+							}
+						}
+					},
+					template: '<div><p>You are grown up<br> <div class="btn-group"> <button class="btn btn-info" ui-sref="birth.childhood.study">Study</button> <button class="btn btn-warning" ui-sref="birth.childhood.career">Career</button></p> </div> <div ui-view></div></div>'
 				})
 				.state('birth.childhood.study', {
 					url: '/study',
-					template: '<div><p>Really ?<br> <div class="btn-group"> <button class="btn btn-primary" ui-sref=".phd">phd</button> <button class="btn btn-success" ui-sref=".workinglife">workinglife</button> </div> </p> <div ui-view></div></div>'
+					resolve: {
+						message : function(Restangular) {
+							try {
+								var message = Restangular.one("fascinating/Thibault").get().then(function(message) {
+									$("#restQuote").empty().append(message);
+								});  	
+							} 
+							catch(e) {
+								console.log(e);
+							}
+						}
+					},
+					template: '<div><p>Really ?<br> <div class="btn-group"> <button class="btn btn-primary" ui-sref=".phd">PHD</button> <button class="btn btn-success" ui-sref=".workinglife">Working Life</button> </div> </p> <div ui-view></div></div>'
 				})
 				.state('birth.childhood.study.phd', {
 					url: '/phd',
-					template: '<div><p>Great, What next ?<br><button class="btn btn-success" ui-sref=".workinglife">workinglife</button> </p> <div ui-view></div></div>'
+					resolve: {
+						message : function(Restangular) {
+							try {
+								var message = Restangular.one("flying/Thibault").get().then(function(message) {
+									$("#restQuote").empty().append(message);
+								});  	
+							} 
+							catch(e) {
+								console.log(e);
+							}
+						}
+					},
+					template: '<div><p>Great, What next ?<br><button class="btn btn-success" ui-sref=".workinglife">Working Life</button> </p> <div ui-view></div></div>'
 				})
 				.state('birth.childhood.career', {
 					url: '/career',
-					template: '<div><p>GoodLuck !<br><button class="btn btn-success" ui-sref=".workinglife">workinglife</button> </p> <div ui-view></div></div>'
+					resolve: {
+						message : function(Restangular) {
+							try {
+								var message = Restangular.one("retard/Thibault").get().then(function(message) {
+									$("#restQuote").empty().append(message);
+								});  	
+							} 
+							catch(e) {
+								console.log(e);
+							}
+						}
+					},
+					template: '<div><p>GoodLuck !<br><button class="btn btn-success" ui-sref=".workinglife">Working Life</button> </p> <div ui-view></div></div>'
 				});
 
 
@@ -105,15 +157,51 @@
 				function addWorkingLife($stateProvider, parent){
 					$stateProvider.state(`${parent}.workinglife`, {
 						url: '/worklife',
-						template: '<div><p>Good old days<br><button class="btn btn-warning" ui-sref=".pension">pension</button> </p> <div ui-view></div></div>'
+						resolve: {
+							message : function(Restangular) {
+								try {
+									var message = Restangular.one("greed/Harry/Thibault").get().then(function(message) {
+										$("#restQuote").empty().append(message);
+									});  	
+								} 
+								catch(e) {
+									console.log(e);
+								}
+							}
+						},
+						template: '<div><p>Good old days<br><button class="btn btn-warning" ui-sref=".pension">Pension</button> </p> <div ui-view></div></div>'
 					})
 					.state(`${parent}.workinglife.pension`, {
 						url: '/pension',
-						template: '<div><p>Good old days<br><button class="btn btn-danger" ui-sref=".death">death</button> </p> <div ui-view></div></div>'
+						resolve: {
+							message : function(Restangular) {
+								try {
+									var message = Restangular.one("thumbs/Harry/Thibault").get().then(function(message) {
+										$("#restQuote").empty().append(message);
+									});  	
+								} 
+								catch(e) {
+									console.log(e);
+								}
+							}
+						},
+						template: '<div><p>Good old days<br><button class="btn btn-danger" ui-sref=".death">Death</button> </p> <div ui-view></div></div>'
 					})
 					.state(`${parent}.workinglife.pension.death`, {
 						url: '/death',
-						template: '<div><p>RIP<br><button class="btn btn-default" ui-sref="birth">birth</button> </p> </div>'
+						resolve: {
+							message : function(Restangular) {
+								try {
+									var message = Restangular.one("keepcalm/die/Thibault").get().then(function(message) {
+										$("#restQuote").empty().append(message);
+									});  	
+								} 
+								catch(e) {
+									console.log(e);
+								}
+							}
+						},
+						template: '<div><p>RIP<br><button class="btn btn-default" ui-sref="birth">REBORN</button> </p> </div>'
 					});
 				}
 			});	
